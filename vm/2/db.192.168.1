@@ -1,0 +1,15 @@
+$TTL 86400
+@       IN      SOA     dns.ddp.lab. admin.ddp.lab. (
+                        2023060101 ; Serial
+                        3600       ; Refresh
+                        900        ; Retry
+                        3600000    ; Expire
+                        86400 )    ; Minimum
+
+        IN      NS      dns.ddp.lab.
+
+1       IN      PTR     gw.ddp.lab.
+2       IN      PTR     dns.ddp.lab.
+3       IN      PTR     squid1.ddp.lab.
+4       IN      PTR     squid2.ddp.lab.
+5       IN      PTR     client.ddp.lab.
