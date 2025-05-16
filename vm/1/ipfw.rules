@@ -11,8 +11,8 @@ ipfw -q add allow all from any to any via lo0
 # Allow ping
 ipfw -q add allow icmp from any to any
 
-# Allow incomming connections to SSH (if needed)
-ipfw -q add allow tcp from any to me 22
+# Uncomment to allow incomming connections to SSH (if needed)
+#ipfw -q add allow tcp from any to me 22
 
 # Enable NAT for inner network (192.168.1.0/24)
 ipfw -q add divert natd all from 192.168.1.0/24 to any via em0
