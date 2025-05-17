@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# The filepath: /usr/local/bin/custom_resolvconf
+  
+# Generate resolv.conf with priority to local DNS
+{
+    echo "nameserver 192.168.1.3  # Local DNS";
+    echo "nameserver $(awk '/nameserver/{print $2}' /var/run/dhclient.leases.em0 | head -1)  # DHCP-DNS";
+    echo "nameserver 1.1.1.1  # Cloudflare DNS";
+    echo "nameserver 8.8.8.8  # Google DNS";
+    echo "options timeout:1 attempts:1";
+} > /etc/resolv.conf
