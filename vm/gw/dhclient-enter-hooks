@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# The filepath: /etc/dhclient-enter-hooks
+
+# Save local DNS as main and DHCP-DNS as reserv
+make_resolv_conf() {
+    echo "nameserver 192.168.1.2" > /etc/resolv.conf.tmp
+    echo "nameserver $(get_dhcp_dns)" >> /etc/resolv.conf.tmp
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf.tmp
+    echo "nameserver 8.8.8.8" >> /etc/resolv.conf.tmp
+    mv /etc/resolv.conf.tmp /etc/resolv.conf
+}
+
+# Get DNS from DHCP
+get_dhcp_dns() {
+    awk '/dhcp-server-identifier|domain-name-servers/{print $3}' /var/db/dhclient.leases.em0 | head -n 1
+}
