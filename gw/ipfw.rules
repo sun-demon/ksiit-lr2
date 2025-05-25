@@ -16,7 +16,7 @@ ipfw add 170 allow udp from any 53 to me in via em0
 ipfw add 180 allow tcp from any 53 to me in via em0
 
 #Allow NAT (through out natd)
-ipfw add 200 divert natd all from any to any via em0
+ipfw add 200 divert natd all from any to any not 53 via em0
 
 # Allow local traffic
 ipfw add 300 allow all from any to any via lo0
