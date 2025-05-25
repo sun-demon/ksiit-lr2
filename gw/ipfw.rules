@@ -1,29 +1,24 @@
 #!/bin/sh
-
-# Reset all rules
 ipfw -f flush
 
-# NAT for simple traffic (except for Squid)
-ipfw add 100 allow udp from 192.168.1.0/24 to any 53 out via em0
-ipfw add 110 allow tcp from 192.168.1.0/24 to any 53 out via em0
-ipfw add 120 allow udp from me to any 53 out via em0
-ipfw add 130 allow tcp from me to any 53 out via em0
+# NAT
+ipfw add 100 divert natd all from any to any via em0
 
-# Allow response from DNS-servers
-ipfw add 150 allow udp from any 53 to 192.168.1.0/24 in via em0
-ipfw add 160 allow tcp from any 53 to 192.168.1.0/24 in via em0
-ipfw add 170 allow udp from any 53 to me in via em0
-ipfw add 180 allow tcp from any 53 to me in via em0
+# Loopback
+ipfw add 200 allow all from any to any via lo0
+
+# Internal LAN
+ipfw add 300 allow all from 192.168.1.0/24 to any via em1
+ipfw add 310 allow all from any to 192.168.1.0/24 via em1
 
 #Allow NAT (through out natd)
-ipfw add 200 divert natd all from any to any not 53 via em0
 
-# Allow local traffic
-ipfw add 300 allow all from any to any via lo0
-ipfw add 400 allow all from 192.168.1.0/24 to any via em1
+# DNS
+ipfw add 400 allow udp from any to any 53
+ipfw add 410 allow tcp from any to any 53
 
-# Allow ICMP (ping)
+# ICMP
 ipfw add 500 allow icmp from any to any
 
-# Blocking traffic logging (for debug)
-ipfw add 65534 deny log all from any to any
+# Log other traffic (optional for debug)
+ipfw add 600 deny log all from any to any
