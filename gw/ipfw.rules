@@ -11,8 +11,6 @@ ipfw add 200 allow all from any to any via lo0
 ipfw add 300 allow all from 192.168.1.0/24 to any via em1
 ipfw add 310 allow all from any to 192.168.1.0/24 via em1
 
-#Allow NAT (through out natd)
-
 # DNS
 ipfw add 400 allow udp from any to any 53
 ipfw add 410 allow tcp from any to any 53
