@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Clear all rules
+ipfw -f flush
+
 # Allow all on loopback
 ipfw add 100 allow all from any to any via lo0
 
