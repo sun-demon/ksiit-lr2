@@ -1,0 +1,14 @@
+#!/bin/sh
+# /etc/ipfw.rules
+
+# Allow all on loopback
+ipfw add 100 allow all from any to any via lo0
+
+# Allow traffic in inner network (LAN)
+ipfw add 200 allow all from 192.168.1.0/24 to any via em1
+
+# NAT for traffic, outgoing throughout em0 (outer interface)
+ipfw add 300 nat 1 ip from 192.168.1.0/24 to any out via em0
+
+# Allow all other traffic (and traffic after NAT)
+ipfw add 65535 allow all from any to any
