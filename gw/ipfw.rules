@@ -1,0 +1,36 @@
+#!/bin/sh
+ipfw -f flush
+
+# --- Constants ---
+lan="em1"
+wan="em0"
+lan_net="192.168.1.0/24"
+
+# --- Processing NAT (global traffic) ---
+ipfw add 100 divert natd ip4 from ${lan_net} to any out via ${wan}
+
+# --- Allow loopback (local interface) ---
+ipfw add 200 allow ip from any to any via lo0
+
+# --- Check existing connections ---
+ipfw add 300 check-state
+
+# --- Allow local network with state ---
+ipfw add 400 allow ip from ${lan_net} to any keep-state
+ipfw add 410 allow ip from any to ${lan_net} keep-state
+
+# --- Allow DNS-requests (local and global) ---
+ipfw add 500 allow udp from any to any 53 keep-state
+ipfw add 510 allow tcp from any to any 53 keep-state
+
+# --- Allow ICMP (ping, etc.) ---
+ipfw add 600 allow icmp from any to any
+
+# --- Allow SSH on gateway (if needed) ---
+# ipfw add 700 allow tcp from any to me 22 in via ${wan} setup keep-state
+
+# --- Protection against fragmented packets (if needed) ---
+ipfw add 800 allow ip from any to any frag
+
+# --- Logging all other (for debug) ---
+ipfw add 900 deny log ip from any to any
