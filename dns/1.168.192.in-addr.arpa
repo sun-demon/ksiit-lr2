@@ -1,6 +1,6 @@
 $TTL 3600
 @       IN      SOA     dns.ddp.lab. admin.ddp.lab. (
-                        2025052501 ; Serial
+                        2025052701 ; Serial
                         3600       ; Refresh
                         900        ; Retry
                         3600000    ; Expire
@@ -12,3 +12,4 @@ $TTL 3600
 2       IN      PTR     dns.ddp.lab.
 3       IN      PTR     squid.ddp.lab.
 4       IN      PTR     client.ddp.lab.
+5       IN      PTR     client2.ddp.lab.
