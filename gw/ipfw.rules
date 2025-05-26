@@ -1,36 +1,35 @@
 #!/bin/sh
 ipfw -f flush
 
-# --- Constants ---
+# Constants
 lan="em1"
 wan="em0"
 lan_net="192.168.1.0/24"
 
-# --- Processing NAT (global traffic) ---
-ipfw add 100 divert natd ip4 from ${lan_net} to any out via ${wan}
+# Prohibit SSH from the outside
+ipfw add 100 deny tcp from any to me 22 in via ${wan}
 
-# --- Allow loopback (local interface) ---
-ipfw add 200 allow ip from any to any via lo0
+# Prohibit access from the outside to the local DNS-server
+ipfw add 200 deny udp from any to me 53 in via ${wan}
+ipfw add 210 deny tcp from any to me 53 in via ${wan}
 
-# --- Check existing connections ---
-ipfw add 300 check-state
+# NAT and deNAT
+ipfw add 300 divert natd ip from any to any via ${wan}
 
-# --- Allow local network with state ---
-ipfw add 400 allow ip from ${lan_net} to any keep-state
-ipfw add 410 allow ip from any to ${lan_net} keep-state
+# Loopback
+ipfw add 400 allow ip from any to any via lo0
 
-# --- Allow DNS-requests (local and global) ---
-ipfw add 500 allow udp from any to any 53 keep-state
-ipfw add 510 allow tcp from any to any 53 keep-state
+# Allow ICMP (ping)
+ipfw add 500 allow icmp from any to any
 
-# --- Allow ICMP (ping, etc.) ---
-ipfw add 600 allow icmp from any to any
+# Allow DNS
+ipfw add 600 allow udp from any to any 53
+ipfw add 610 allow tcp from any to any 53
+ipfw add 620 allow udp from any 53 to any
+ipfw add 630 allow tcp from any 53 to any
 
-# --- Allow SSH on gateway (if needed) ---
-# ipfw add 700 allow tcp from any to me 22 in via ${wan} setup keep-state
-
-# --- Protection against fragmented packets (if needed) ---
-ipfw add 800 allow ip from any to any frag
-
-# --- Logging all other (for debug) ---
-ipfw add 900 deny log ip from any to any
+# Allow HTTP/HTTPS
+ipfw add 700 allow tcp from any to any 80
+ipfw add 710 allow tcp from any 80 to any
+ipfw add 720 allow tcp from any to any 443
+ipfw add 730 allow tcp from any 443 to any
