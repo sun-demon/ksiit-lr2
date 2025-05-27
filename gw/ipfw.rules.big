@@ -1,0 +1,58 @@
+#!/bin/sh
+ipfw -f flush
+
+# Constants
+lan="em1"
+wan="em0"
+lan_net="192.168.1.0/24"
+
+# Logging
+ipfw add 00100 log all from any to any   # Log everything (for troubleshooting) - VERY IMPORTANT!  REMOVE OR DISABLE in PROD
+ipfw add 00101 log tcp from any to any established  # Log established connections.  Remove if not needed.
+
+# Allow loopback
+ipfw add 100 allow ip from any to any via lo0
+
+# Allow established connections - (Stateful, ALWAYS needed for NAT to work)
+ipfw add 110 allow tcp from any to me established keep-state
+
+# NAT (MUST be before any rules that allow traffic from the LAN)
+ipfw add 200 divert natd ip from any to any via ${wan}
+
+# ICMP (ping) - Allow ICMP from your LAN and to your WAN
+ipfw add 300 allow icmp from ${lan_net} to any
+ipfw add 310 allow icmp from any to ${wan}
+
+# Allow DNS
+# Allow DNS requests FROM local network
+ipfw add 400 allow udp from ${lan_net} to any 53 keep-state
+ipfw add 401 allow tcp from ${lan_net} to any 53 keep-state
+
+# Allow DNS replies
+ipfw add 402 allow udp from any 53 to ${lan_net} keep-state
+ipfw add 403 allow tcp from any 53 to ${lan_net} keep-state
+
+# Allow HTTP/HTTPS (from LAN to WAN)
+ipfw add 500 allow tcp from ${lan_net} to any 80 keep-state
+ipfw add 501 allow tcp from ${lan_net} to any 443 keep-state
+
+# Allow HTTP/HTTPS (from WAN to LAN) - if you want to accept connections from the outside
+#ipfw add 502 allow tcp from any 80 to ${lan_net} dst-port ! 80
+#ipfw add 503 allow tcp from any 443 to ${lan_net} dst-port ! 443
+
+# Allow access from local network to the local DNS-server (if needed)
+ipfw add 600 allow udp from ${lan_net} to me 53 keep-state
+ipfw add 601 allow tcp from ${lan_net} to me 53 keep-state
+
+# Allow Squid
+ipfw add 700 allow tcp from ${lan_net} to any 3128 keep-state  # Squid (Allow outbound from LAN)
+#ipfw add 710 allow tcp from any 3128 to ${lan_net}   #  (Squid inbound, from WAN)
+
+# Deny SSH from outside (IMPORTANT - only for remote management)
+ipfw add 800 deny tcp from any to me 22 in via ${wan}
+
+# Deny all other inbound traffic (drop silently)
+ipfw add 65000 deny all from any to any in
+
+# Deny all other outbound traffic. (Drop silently)
+ipfw add 65500 deny all from any to any out
