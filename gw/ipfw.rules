@@ -33,3 +33,7 @@ ipfw add 700 allow tcp from any to any 80
 ipfw add 710 allow tcp from any 80 to any
 ipfw add 720 allow tcp from any to any 443
 ipfw add 730 allow tcp from any 443 to any
+
+# Allow Squid
+ipfw add 800 allow tcp from any to any 3128
+ipfw add 810 allow tcp from any 3128 to any
