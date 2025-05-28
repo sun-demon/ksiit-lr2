@@ -19,21 +19,24 @@ ipfw add 300 divert natd ip from any to any via ${wan}
 # Loopback
 ipfw add 400 allow ip from any to any via lo0
 
+# Allow stateful
+ipfw add 500 check-state
+
 # Allow ICMP (ping)
-ipfw add 500 allow icmp from any to any
+ipfw add 600 allow icmp from any to any keep-state
 
 # Allow DNS
-ipfw add 600 allow udp from any to any 53
-ipfw add 610 allow tcp from any to any 53
-ipfw add 620 allow udp from any 53 to any
-ipfw add 630 allow tcp from any 53 to any
+ipfw add 700 allow udp from any to any 53 keep-state
+ipfw add 710 allow tcp from any to any 53 keep-state
+ipfw add 720 allow udp from any 53 to any keep-state
+ipfw add 730 allow tcp from any 53 to any keep-state
 
 # Allow HTTP/HTTPS
-ipfw add 700 allow tcp from any to any 80
-ipfw add 710 allow tcp from any 80 to any
-ipfw add 720 allow tcp from any to any 443
-ipfw add 730 allow tcp from any 443 to any
+ipfw add 800 allow tcp from any to any 80 keep-state
+ipfw add 810 allow tcp from any 80 to any keep-state
+ipfw add 820 allow tcp from any to any 443 keep-state
+ipfw add 830 allow tcp from any 443 to any keep-state
 
 # Allow Squid
-ipfw add 800 allow tcp from any to any 3128
-ipfw add 810 allow tcp from any 3128 to any
+ipfw add 900 allow tcp from any to any 3128 keep-state
+ipfw add 910 allow tcp from any 3128 to any keep-state
